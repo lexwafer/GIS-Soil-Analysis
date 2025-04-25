@@ -1,0 +1,34 @@
+# Load necessary libraries
+library(sf)          # for spatial vector data
+library(tidyverse)   # for data wrangling and plotting
+library(tmap)        # for thematic mapping
+library(units)       # for handling units in sf objects
+
+# --- 1. Load shapefiles (e.g., Ohio counties and soil survey data) ---
+ohio_counties <- st_read("data/ohio_counties.shp")
+soil_data     <- st_read("data/soil_survey.shp")
+
+# --- 2. Transform projections (WGS84 for web mapping compatibility) ---
+ohio_counties <- st_transform(ohio_counties, crs = 4326)
+soil_data     <- st_transform(soil_data, crs = 4326)
+
+# --- 3. Join soil data to counties (spatial intersection) ---
+soil_summary <- soil_data %>%
+  group_by(COUNTY_NAME) %>%
+  summarize(mean_pH = mean(pH, na.rm = TRUE),
+            area_ha = sum(st_area(geometry)) / 10^4)  # convert m² to hectares
+
+# Join to counties by name
+ohio_soils <- ohio_counties %>%
+  left_join(soil_summary, by = c("NAME" = "COUNTY_NAME"))
+
+# --- 4. Visualize with tmap (interactive or static) ---
+# Switch between interactive and static mode
+tmap_mode("plot")
+
+tm_shape(ohio_soils) +
+  tm_polygons("mean_pH", palette = "YlGnBu", title = "Avg Soil pH") +
+  tm_layout(title = "Average Soil pH by County in Ohio")
+
+# --- 5. Export processed shapefile ---
+st_write(ohio_soils, "output/ohio_soil_summary.shp", delete_dsn = TRUE)
