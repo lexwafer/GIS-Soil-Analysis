@@ -8,6 +8,6 @@ This project demonstrates spatial analysis of soil data in Ohio using R's `sf`, 
 - Thematic mapping of soil pH across counties
 - Exporting processed spatial data
 
-📍 Use case: Environmental monitoring, precision agriculture, or ecological modeling.
+Use case: Environmental monitoring, precision agriculture, or ecological modeling.
 
-🚀 Run `soil_analysis_gis.R` to reproduce results.
+Run `soil_analysis_gis.R` to reproduce results.
